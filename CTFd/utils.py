@@ -1,9 +1,9 @@
 from CTFd.models import db, WrongKeys, Pages, Config, Tracking, Teams, Containers, ip2long, long2ip
-
 from six.moves.urllib.parse import urlparse, urljoin
 from werkzeug.utils import secure_filename
 from functools import wraps
 from flask import current_app as app, g, request, redirect, url_for, session, render_template, abort
+from flask_cache import Cache
 from itsdangerous import Signer, BadSignature
 from socket import inet_aton, inet_ntoa, socket
 from struct import unpack, pack, error
@@ -26,6 +26,7 @@ import tempfile
 import subprocess
 import json
 
+cache = Cache()
 
 def init_logs(app):
     logger_keys = logging.getLogger('keys')
@@ -158,7 +159,7 @@ def is_verified():
     else:
         return False
 
-
+@cache.memoize()
 def is_setup():
     setup = Config.query.filter_by(key='setup').first()
     if setup:
@@ -192,6 +193,7 @@ def admins_only(f):
     return decorated_function
 
 
+@cache.memoize()
 def view_after_ctf():
     if get_config('view_after_ctf') == '1' and time.time() > int(get_config("end")):
         return True
@@ -199,6 +201,7 @@ def view_after_ctf():
         return False
 
 
+@cache.memoize(timeout=60)
 def ctftime():
     """ Checks whether it's CTF time or not. """
 
@@ -234,6 +237,7 @@ def ctftime():
     return False
 
 
+@cache.memoize()
 def can_view_challenges():
     config = Config.query.filter_by(key="view_challenges_unregistered").first()
     if config:
@@ -284,6 +288,7 @@ def get_themes():
             if os.path.isdir(os.path.join(dir, name))]
 
 
+@cache.memoize()
 def get_config(key):
     config = Config.query.filter_by(key=key).first()
     if config and config.value:
@@ -308,10 +313,12 @@ def set_config(key, value):
     return config
 
 
+@cache.memoize()
 def can_send_mail():
     return mailgun() or mailserver()
 
 
+@cache.memoize()
 def mailgun():
     if app.config.get('MAILGUN_API_KEY') and app.config.get('MAILGUN_BASE_URL'):
         return True
@@ -319,6 +326,8 @@ def mailgun():
         return True
     return False
 
+
+@cache.memoize()
 def mailserver():
     if (get_config('mail_server') and get_config('mail_port')):
         return True
@@ -407,6 +416,7 @@ def sha512(string):
     return hashlib.sha512(string).hexdigest()
 
 
+@cache.memoize()
 def can_create_container():
     try:
         output = subprocess.check_output(['docker', 'version'])

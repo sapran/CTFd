@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 from flask_session import Session
 from sqlalchemy_utils import database_exists, create_database
 from jinja2 import FileSystemLoader, TemplateNotFound
-from utils import get_config, set_config
+from utils import get_config, set_config, cache
 import os
 import sqlalchemy
 
@@ -32,6 +32,9 @@ def create_app(config='CTFd.config'):
         db.create_all()
 
         app.db = db
+
+        cache.init_app(app, config={'CACHE_TYPE': 'simple'})
+        app.cache = cache
 
         if not get_config('ctf_theme'):
             set_config('ctf_theme', 'original')

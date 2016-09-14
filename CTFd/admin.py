@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, abort, jsonify, url_for, session, Blueprint
 from CTFd.utils import sha512, is_safe_url, authed, admins_only, is_admin, unix_time, unix_time_millis, get_config, \
     set_config, sendmail, rmdir, create_image, delete_image, run_image, container_status, container_ports, \
-    container_stop, container_start, get_themes
+    container_stop, container_start, get_themes, cache
 from CTFd.models import db, Teams, Solves, Awards, Containers, Challenges, WrongKeys, Keys, Tags, Files, Tracking, Pages, Config, DatabaseError
 from CTFd.scoreboard import get_standings
 from itsdangerous import TimedSerializer, BadTimeSignature
@@ -105,6 +105,7 @@ def admin_config():
 
         db.session.commit()
         db.session.close()
+        cache.clear()
         return redirect(url_for('admin.admin_config'))
 
     ctf_name = get_config('ctf_name')
