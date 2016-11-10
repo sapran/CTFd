@@ -11,14 +11,15 @@ with open('.ctfd_secret_key', 'a+') as secret:
 
 ##### SERVER SETTINGS #####
 SECRET_KEY = key
-SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///ctfd.db'
+#SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///ctfd.db'
+SQLALCHEMY_DATABASE_URI = 'postgresql://ctfdbuser:XWGasR3siztbXta$pjCQsD7j@localhost/ctfdb'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SESSION_TYPE = "filesystem"
 SESSION_FILE_DIR = "/tmp/flask_session"
 SESSION_COOKIE_HTTPONLY = True
 PERMANENT_SESSION_LIFETIME = 604800 # 7 days in seconds
-HOST = ".ctfd.io"
-MAILFROM_ADDR = "noreply@ctfd.io"
+HOST = "ctf.uisgcon.org"
+MAILFROM_ADDR = "ctf@uisgcon.org"
 UPLOAD_FOLDER = os.path.normpath('static/uploads')
 TEMPLATES_AUTO_RELOAD = True
 TRUSTED_PROXIES = [
