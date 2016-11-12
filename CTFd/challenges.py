@@ -24,7 +24,7 @@ def challenges_view():
             if view_after_ctf(): # But we are allowed to view after the CTF ends
                 pass
             else:  # We are NOT allowed to view after the CTF ends
-                errors.append('{} has ended'.format(ctf_name()))
+                errors.append('{} has not started yet'.format(ctf_name()))
                 return render_template('chals.html', errors=errors, start=int(start), end=int(end))
                 return redirect(url_for('views.static_html'))
         if get_config('verify_emails') and not is_verified(): # User is not confirmed
@@ -33,7 +33,7 @@ def challenges_view():
         if get_config('start') and not ctf_started():
             errors.append('{} has not started yet'.format(ctf_name()))
         if (get_config('end') and ctf_ended()) and not view_after_ctf():
-            errors.append('{} has ended'.format(ctf_name()))
+            errors.append('{} has not started yet'.format(ctf_name()))
         return render_template('chals.html', errors=errors, start=int(start), end=int(end))
     else:
         return redirect(url_for('auth.login', next='challenges'))
